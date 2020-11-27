@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PipeTraceViewer.Models
 {
-	class JsonObject
+	public class JsonObject
 	{
 		public string type { get; set; }
 		public int? id { get; set; }
@@ -14,3 +14,4 @@ namespace PipeTraceViewer.Models
 		public int? cycle { get; set; }
 		public int? stage { get; set; }
 	}
+}

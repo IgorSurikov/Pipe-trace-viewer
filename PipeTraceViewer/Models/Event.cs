@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PipeTraceViewer.Models
 {
-	class Event
+	public class Event
 	{
 		public Event(int? startCycle, int? endCycle, string description)
 		{
