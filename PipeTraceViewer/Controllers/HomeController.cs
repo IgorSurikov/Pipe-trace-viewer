@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using PipeTraceViewer.Models;
 
@@ -23,19 +24,32 @@ namespace PipeTraceViewer.Controllers
 
 		public IActionResult Index()
 		{
+			List<String> files = (from a in Directory.GetFiles(Path.Combine(_env.ContentRootPath, "wwwroot", "data"))
+				select Path.GetFileName(a)).ToList();
+			ViewBag.files = new SelectList(files);
 			return View();
 		}
 
-		public async Task<IActionResult> Viewer()
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public IActionResult Index(string fileName)
 		{
-			var records = await ExtractDataAsync();
-			return View(records.Where(i => i.id < 10).ToList());
+			return RedirectToAction("Viewer", new { fileName = fileName});
+		}
+
+		public async Task<IActionResult> Viewer(String fileName)
+		{
+			ViewData["Title"] = fileName;
+			var records = await ExtractDataAsync(fileName);
+			var cycleCount = records.Max(r => r.Events.Max(e => e.EndCycle));
+			ViewBag.cycleCount = cycleCount;
+			return View(records);
 		}
 
 
-		private async Task<List<Record>> ExtractDataAsync()
+		private async Task<List<Record>> ExtractDataAsync(String fileName)
 		{
-			string path = Path.Combine(_env.ContentRootPath, "wwwroot", "data", "test.json");
+			string path = Path.Combine(_env.ContentRootPath, "wwwroot", "data", fileName);
 			IEnumerable<JsonObject> rawData;
 			using (FileStream fs = new FileStream(path, FileMode.Open))
 			{
@@ -73,10 +87,7 @@ namespace PipeTraceViewer.Controllers
 					{
 						events.Add(new Event(rawEvents[i].cycle, rawEvents[i].cycle, rawEvents[i].description));
 					}
-					else if (rawEvents[i].description == "Writeback")
-					{
-						events.Add(new Event(rawEvents[i].cycle, rawEvents[i].cycle, rawEvents[i].description));
-					}
+
 					else
 					{
 						events.Add(new Event(rawEvents[i - 1].cycle + 1, rawEvents[i].cycle,

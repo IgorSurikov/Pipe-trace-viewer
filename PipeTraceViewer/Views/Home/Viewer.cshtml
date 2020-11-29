@@ -1,20 +1,24 @@
 ﻿@model List<Record>
-@{
-	ViewData["Title"] = "Viewer";
-}
+
 
 
 <div class="row">
 	<div class="row col-2">
 		<div class="col-4 p-0">
+			<div class=" border text-center font-weight-bold">
+				Id
+			</div>
 			@foreach (Record rec in Model)
 			{
-				<div class="border text-center h-auto">
+				<div class="border text-center">
 					@rec.id
 				</div>
 			}
 		</div>
 		<div class="col-8 p-0">
+			<div class=" border text-center font-weight-bold">
+				Records
+			</div>
 			@foreach (Record rec in Model)
 			{
 				<div class="border text-center">
@@ -24,37 +28,36 @@
 		</div>
 	</div>
 	<div class="col-10 p-0">
-		@foreach (Record rec in Model)
-		{
-		<div class="d-flex .flex-row">
-			@for (int i = 0; i < rec.Events.First().StartCycle - 1; i++)
+		<div class="d-flex flex-row">
+			@for (int i = 0; i < ViewBag.cycleCount; i++)
 			{
-				<div class="child border">
-
-				</div>
-			}
-			@foreach (Event e in rec.Events)
-			{
-
-				@for (int i = 0; i < e.CycleCount; i++)
-				{
-					<div class="child border">
-						@e.description[0]
-					</div>
-				}
-
-
-			}
-
-			@for (int j = 0; j < 10; j++)
-			{
-				<div class="child border">
-
+				<div class="child border font-weight-bold number">
+					@(i + 1)
 				</div>
 			}
 		</div>
+
+		@foreach (Record rec in Model)
+		{
+			<div class="d-flex .flex-row">
+				@for (int i = 0; i < rec.Events.First().StartCycle - 1; i++)
+				{
+					<div class="child border">
+					</div>
+				}
+				@foreach (Event e in rec.Events)
+				{
+					@for (int i = 0; i < e.CycleCount; i++)
+					{
+						<event description=@e.description></event>
+					}
+				}
+				@for (int i = 0; i < ViewBag.cycleCount - rec.Events.Max(e => e.EndCycle); i++)
+				{
+					<div class="child border">
+					</div>
+				}
+			</div>
 		}
 	</div>
 </div>
-
-
